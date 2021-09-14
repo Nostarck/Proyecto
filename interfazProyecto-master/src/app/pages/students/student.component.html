@@ -1,0 +1,251 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+      <!-- Card stats -->
+      <div class="col-12">
+        <div class="card mb-4 mb-xl-3 d-flex flex-row py-4">
+          <div class="col-2">
+            <div class="d-inline-block">
+              <mat-form-field appearance="fill">
+                <mat-label>Grupos</mat-label>
+                <mat-select [formControl]="groups" multiple>
+                  <mat-select-trigger>
+                    {{ groups.value ? groups.value[0] : "" }}
+                    <span
+                      *ngIf="groups.value?.length > 1"
+                      class="example-additional-selection"
+                    >
+                      (+{{ groups.value.length - 1 }}
+                      {{ groups.value?.length === 2 ? "other" : "others" }})
+                    </span>
+                  </mat-select-trigger>
+                  <mat-option
+                    *ngFor="let group of groupsList"
+                    [value]="group.name"
+                    >{{ group.name }}</mat-option
+                  >
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="col-2 d-flex flex-column">
+            <button
+              class="btn btn-icon btn-2 btn-primary mr-auto mb-1"
+              type="button"
+              (click)="onAddGroup('agrupar')"
+            >
+              <span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+              <span class="btn-inner--text">Agrupar</span>
+            </button>
+            <button
+              class="btn btn-icon btn-2 btn-primary mr-auto my-2"
+              type="button"
+              (click)="onAddGroup('desagrupar')"
+            >
+              <span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+              <span class="btn-inner--text">Desagrupar</span>
+            </button>
+          </div>
+          <div class="col-3 d-flex flex-column">
+            <button
+              class="btn btn-icon btn-2 btn-primary"
+              type="button"
+              (click)="openDialog('Agregar', 'student',{})"
+            >
+              <span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+              <span class="btn-inner--text">Agregar estudiante</span>
+            </button>
+          </div>
+          <div class="col-3 d-flex flex-column">
+            <button
+              class="btn btn-icon btn-2 btn-primary"
+              type="button"
+              (click)="onDelete('Eliminar', 'student')"
+            >
+              <span class="btn-inner--icon"
+                ><i class="ni ni-fat-delete"></i
+              ></span>
+              <span class="btn-inner--text">Eliminar estudiante</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Filtrado-->
+<div class="acordions card-remove">
+  <mat-accordion>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header class="showPanel" hideToggle>
+        <mat-panel-title>
+          <button mat-stroked-button color="primary">
+            Mostrar/Ocultar Filtros
+          </button>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="mb-4 mb-xl-0 d-flex flex-row py-3 h-100">
+
+        <div class="col-2">
+          <mat-form-field appearance="fill">
+            <mat-label>Groups</mat-label>
+            <mat-select [formControl]="groupsFilter" multiple>
+              <mat-select-trigger>
+                {{ groupsFilter.value ? groupsFilter.value[0] : "" }}
+                <span
+                  *ngIf="groupsFilter.value?.length > 1"
+                  class="example-additional-selection"
+                >
+                  (+{{ groupsFilter.value.length - 1 }}
+                  {{ groupsFilter.value?.length === 2 ? "other" : "others" }})
+                </span>
+              </mat-select-trigger>
+              <mat-option *ngFor="let group of groupsFilterList" [value]="group.name">{{
+                group.name
+              }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col-2 d-flex flex-column bg-transparent">
+          <button
+            class="btn btn-icon btn-3 btn-primary mr-auto mb-2"
+            type="button"
+            (click)="filterGroups()"
+          >
+            <span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+            <span class="btn-inner--text">Filtrar</span>
+          </button>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
+<!-- Page content -->
+
+
+<div class="container-fluid mt--7 table" >
+
+  <div class="card shadow">
+    <div class="card-header border-0">
+      <h3 class="mb-0">Tabla de estudiantes
+        
+      </h3>
+    </div>
+  </div>
+
+  <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 w-100">
+    <ng-container matColumnDef="select">
+      <th class="thead-light th " mat-header-cell *matHeaderCellDef>
+        <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+        </mat-checkbox>
+      </th>
+      <td class="td" mat-cell *matCellDef="let row">
+        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+          [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+        </mat-checkbox>
+
+      </td>
+    </ng-container>
+    <!-- Position Column -->
+    <ng-container matColumnDef="studentId">
+      <th class="thead-light  th " mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+      <td mat-cell *matCellDef="let element"> 
+        <div class="media-body">
+
+          <span class="mb-0 text-sm">{{element.studentId}}</span>
+        </div>
+    </td>
+    </ng-container>
+  
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th  class="thead-light th " mat-header-cell *matHeaderCellDef mat-sort-header> Nombre</th>
+      <td mat-cell *matCellDef="let element"> {{element.name}}  {{element.lastName}} </td>
+    </ng-container>
+
+  
+    <!-- Weight Column -->
+    <ng-container matColumnDef="Groups">
+      <th  class="thead-light th  "  mat-header-cell *matHeaderCellDef mat-sort-header> Grupo </th>
+      <td mat-cell *matCellDef="let element"> {{element.Groups}} </td>
+    </ng-container>
+  
+    <!-- Symbol Column -->
+    <ng-container matColumnDef="CodeForces">
+      <th  class="thead-light th  " mat-header-cell *matHeaderCellDef mat-sort-header> Usuario CodeForces  </th>
+      <td mat-cell *matCellDef="let element"> {{element.CodeForces}} </td>
+    </ng-container>
+    <ng-container matColumnDef="CodeChef">
+      <th  class="thead-light th  " mat-header-cell *matHeaderCellDef mat-sort-header> Usuario CodeChef </th>
+      <td mat-cell *matCellDef="let element"> {{element.CodeChef}} </td>
+    </ng-container>
+    <ng-container matColumnDef="UVA">
+      <th  class="thead-light th  " mat-header-cell *matHeaderCellDef mat-sort-header> Usuario UVA  </th>
+      <td mat-cell *matCellDef="let element"> {{element.UVA}} </td>
+    </ng-container>
+
+ 
+    <ng-container matColumnDef="fecha">
+      <th  class="thead-light th  " mat-header-cell *matHeaderCellDef mat-sort-header> Fecha de creación</th>
+      <td mat-cell *matCellDef="let element"> 
+        <div class="media-body">
+        
+        <span>{{element.creationDate}} </span>
+        <div ngbDropdown placement="bottom-right" class="editButton" >
+          <a
+            class="btn btn-sm btn-icon-only text-light"
+            ngbDropdownToggle
+          >
+            <i class="fas fa-ellipsis-v"></i>
+          </a>
+          <div
+            ngbDropdownMenu
+            class="dropdown-menu-right dropdown-menu-arrow"
+          >
+            <a class="dropdown-item" href="javascript:void(0)" (click)="openDialog('Editar', 'student', element)"
+              >Editar</a
+            >
+            <a class="dropdown-item" href="javascript:void(0)" [routerLink] ="['/student-profile', element.id]"
+            >Ver Perfil</a
+          >
+          </div>
+        </div>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr  class="thead-light " mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+  <mat-paginator hidePageSize="true"  MatFormFieldAppearance = "fill" [pageSize]="5" showFirstLastButtons></mat-paginator>
+</div>
+<!--pie de pagina-->
+<div class="uploaderPanel card-remove">
+  <mat-accordion class="matAcordion">
+    <mat-expansion-panel class="matAcordion">
+      <mat-expansion-panel-header class="showPanel" hideToggle>
+        <mat-panel-title>
+          <button mat-fab color="primary">
+            <mat-icon>attach_file</mat-icon>
+          </button>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <div class="mb-4 mb-xl-0 d-flex flex-row py-3 h-100">
+        <div class="d-flex flex-column bg-transparent">
+          <form [formGroup]="form" (ngSubmit)="submitForm()">
+            <div class="form-group">
+                <input type="file" (change)="uploadFile($event)">
+            </div>
+            <div class="form-group">
+              <button mat-stroked-button color="primary">Importar</button>
+                
+            </div>
+        </form>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+
+ 
+</div>

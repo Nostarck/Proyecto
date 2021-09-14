@@ -1,0 +1,91 @@
+<!-- dialog-box.component.html -->
+<h1 mat-dialog-title>Acción :: <strong>{{action}}</strong></h1>
+<div mat-dialog-content>
+
+  <ng-container *ngIf="page == 'label'; then labelTemplate"></ng-container>
+  <ng-container *ngIf="page == 'group'; then groupTemplate"></ng-container>
+  <ng-container *ngIf="page == 'problem'; then problemTemplate"></ng-container>
+  <ng-container *ngIf="page == 'student'; then studentTemplate"></ng-container>
+  <ng-container *ngIf="page == 'studentprofile'; then studentprofileTemplate"></ng-container>
+
+  <ng-template #labelTemplate>
+    <ng-container *ngIf="action == 'Agregar' || action == 'Editar'; else deleteTemplate">
+      <mat-form-field >
+        <input placeholder="Nombre" matInput [(ngModel)]="local_data.name">
+      </mat-form-field>
+    </ng-container>
+  </ng-template>
+  <ng-template #groupTemplate>
+    <ng-container *ngIf="action == 'Agregar' || action == 'Editar'">
+      <mat-form-field >
+        <input placeholder="Nombre" matInput [(ngModel)]="local_data.name">
+      </mat-form-field>
+    </ng-container>
+    <ng-container *ngIf="action == 'Exportar'"> 
+      ¿Exportar en un archivo CSV el grupo: {{local_data.name}}?
+    </ng-container>
+    <ng-container *ngIf="action == 'Eliminar'"> 
+      ¿Está seguro de que desea realizar esta acción? 
+    </ng-container>
+  </ng-template>
+  <ng-template #problemTemplate>
+    <ng-container *ngIf="action == 'Agregar' || action == 'Editar'; else deleteTemplate">
+      <mat-form-field >
+        <input placeholder="Comentario" matInput [(ngModel)]="local_data.comment">
+      </mat-form-field>
+    </ng-container>
+  </ng-template>
+  <ng-template #studentTemplate>
+    <ng-container *ngIf="action == 'Agregar' || action == 'Editar'; else deleteTemplate">
+      <mat-form-field >
+        <input placeholder="ID" matInput [(ngModel)]="local_data.studentId">
+      </mat-form-field>
+      <mat-form-field >
+        <input placeholder="Nombre" matInput [(ngModel)]="local_data.name">
+      </mat-form-field>
+      <mat-form-field >
+        <input placeholder="Apellido" matInput [(ngModel)]="local_data.lastName">
+      </mat-form-field>
+      <mat-form-field >
+        <input placeholder="Usuario CodeForces" matInput [(ngModel)]="local_data.CodeForces">
+      </mat-form-field>
+      <mat-form-field >
+        <input placeholder="Usuario CodeChef" matInput [(ngModel)]="local_data.CodeChef">
+      </mat-form-field>
+      <mat-form-field >
+        <input placeholder="Usuario UVA" matInput [(ngModel)]="local_data.UVA">
+      </mat-form-field>
+    </ng-container>
+  </ng-template>
+  <ng-template #studentprofileTemplate>
+    <ng-container *ngIf="action == 'Editar'; else deleteTemplate">
+      <mat-form-field >
+        <input placeholder="ID" matInput [(ngModel)]="local_data.userid">
+      </mat-form-field>
+      <mat-form-field >
+        <input placeholder="Nombre" matInput [(ngModel)]="local_data.name">
+
+      </mat-form-field>
+      <mat-form-field >
+        <input placeholder="Apellido" matInput [(ngModel)]="local_data.lastname">
+      </mat-form-field>
+      <mat-form-field >
+        <input placeholder="Usuario CodeForces" matInput [(ngModel)]="local_data.Judges.CodeForces">
+      </mat-form-field>
+      <mat-form-field >
+        <input placeholder="Usuario CodeChef" matInput [(ngModel)]="local_data.Judges.CodeChef">
+      </mat-form-field>
+      <mat-form-field >
+        <input placeholder="Usuario UVA" matInput [(ngModel)]="local_data.Judges.UVA">
+      </mat-form-field>
+    </ng-container>
+    </ng-template>
+  <ng-template #deleteTemplate>
+    ¿Está seguro de que desea realizar esta acción?
+  </ng-template>
+
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="doAction()">{{action}}</button>
+  <button mat-button (click)="closeDialog()" mat-flat-button color="warn">Cancelar</button>
+</div>

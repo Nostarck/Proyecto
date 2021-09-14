@@ -1,0 +1,84 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+      <!-- Card buttons-->
+      <div class="col-12 ">
+        <div class="card mb-4 mb-xl-3 d-flex flex-row py-4 cardButtons">
+          <div class="col-2 d-flex flex-column  middleButtons">
+            <button class="btn btn-icon btn-3 btn-primary" type="button" (click)="openDialog('Agregar', 'label',{})">
+              <span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+              <span class="btn-inner--text">Crear Etiqueta</span>
+            </button>
+          </div>
+          <div class="col-2 d-flex flex-column middleButtons">
+            <button class="btn btn-icon btn-2 btn-primary" type="button" (click)="onDelete('Eliminar', 'label')">
+            <!-- <button class="btn btn-icon btn-2 btn-primary " type="button" (click)="openDialog('Eliminar', 'label', element)"> -->
+              <span class="btn-inner--icon"><i class="ni ni-fat-delete"></i></span>
+              <span class="btn-inner--text">Eliminar etiqueta</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Tabla-->
+<div class="container-fluid mt-4 table">
+
+  <div class="card shadow">
+    <div class="card-header border-0">
+      <h3 class="mb-0">Tabla de etiquetas
+
+      </h3>
+    </div>
+  </div>
+
+  <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 w-100">
+    <ng-container matColumnDef="select">
+      <th class="thead-light th " mat-header-cell *matHeaderCellDef>
+        <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()"
+          [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
+        </mat-checkbox>
+      </th>
+      <td class="td" mat-cell *matCellDef="let row">
+        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
+          [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+        </mat-checkbox>
+
+      </td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <th class="thead-light th " mat-header-cell *matHeaderCellDef mat-sort-header> Nombre</th>
+      <td mat-cell *matCellDef="let element">
+        <div class="media-body">
+          <span class="mb-0 text-sm"> {{element.name}} </span>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Weight Column -->
+    <ng-container matColumnDef="created_date">
+      <th class="thead-light th  " mat-header-cell *matHeaderCellDef mat-sort-header> Fecha </th>
+      <td mat-cell *matCellDef="let element">
+        <div class="media-body">
+
+          <span>{{element.created_date}} </span>
+          <div ngbDropdown placement="bottom-right" class="editButton">
+            <a class="btn btn-sm btn-icon-only text-light" ngbDropdownToggle>
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <div ngbDropdownMenu class="dropdown-menu-right dropdown-menu-arrow">
+              <a class="dropdown-item" (click)="openDialog('Editar', 'label', element)" href="javascript:void(0)">Editar</a>
+            </div>
+          </div>
+        </div>
+      </td>
+    </ng-container>
+
+    <tr class="thead-light " mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+  <mat-paginator hidePageSize="true" MatFormFieldAppearance="fill" [pageSize]="5" showFirstLastButtons></mat-paginator>
+</div>

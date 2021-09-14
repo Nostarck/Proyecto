@@ -1,0 +1,26 @@
+.userName {
+  margin-bottom: 1rem;
+}
+
+.usernameBox {
+  p {
+    font-size: 0.75rem !important;
+  }
+  input[type="text"] {
+    font-size: 0.75rem !important;
+  }
+}
+
+.col-5
+{
+    max-width: 42.66667%; 
+
+    flex: 0 0 42.66667%;
+}
+
+.col-6
+{
+    max-width: 52%; 
+
+    flex: 0 0 52%;
+}

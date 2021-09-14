@@ -1,0 +1,173 @@
+<div
+  class="header pb-5 pt-5 pt-lg-5 d-flex align-items-center"
+  style="
+    min-height: 300px;
+    background-size: cover;
+    background-position: center top;
+  "
+>
+  <!-- Mask -->
+  <span class="mask bg-gradient-danger opacity-8"></span>
+  <!-- Header container -->
+  <div class="container-fluid w-100 d-flex align-items-center">
+
+      <div class="col-lg-7 col-md-10 p-0">
+        <h1 class="display-2 text-white">
+        {{studentProfile.name}} {{ studentProfile.lastname}}</h1>
+        <p class="text-white mt-0 mb-5">{{studentProfile.userid}}</p>
+        <a  class="btn btn-info"
+        (click)="openDialog('Editar', 'studentprofile', studentProfile)">
+        Editar perfil</a>
+      </div>
+
+  </div>
+</div>
+
+<div>
+  <div class="acordions card-remove">
+    <mat-accordion>
+      <mat-expansion-panel>
+        <mat-expansion-panel-header class="showPanel" hideToggle>
+          <mat-panel-title>
+            <button mat-stroked-button color="primary">
+              Mostrar/Ocultar Filtros
+            </button>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="mb-4 mb-xl-0 d-flex flex-row py-3 h-100">
+  
+          <div class="col-2">
+            <mat-form-field appearance="fill">
+              <mat-label>Etiquetas</mat-label>
+              <mat-select [formControl]="tags" multiple>
+                <mat-select-trigger>
+                  {{ tags.value ? tags.value[0] : "" }}
+                  <span
+                    *ngIf="tags.value?.length > 1"
+                    class="example-additional-selection"
+                  >
+                    (+{{ tags.value.length - 1 }}
+                    {{ tags.value?.length === 2 ? "other" : "others" }})
+                  </span>
+                </mat-select-trigger>
+                <mat-option *ngFor="let tag of tagsList" [value]="tag.name">{{
+                  tag.name
+                }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-2 d-flex flex-column bg-transparent">
+            <button
+              class="btn btn-icon btn-3 btn-primary mr-auto mb-2"
+              type="button"
+              (click)="filterTags()"
+            >
+              <span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+              <span class="btn-inner--text">Filtrar</span>
+            </button>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
+  <div class="row" style="margin-top: 2rem">
+    <div class="col-9 order-3" style="padding-right: 0  !important; right: -3rem; padding-left: 0 !important; width: 105%;  ">
+      <div class="container-fluid mt-3" style="padding-left: 0  !important; width: 100%; ">
+        <!-- Table -->
+        <div class="card shadow">
+          <div class="card-header border-0">
+            <h3 class="mb-0">Tabla de problemas
+              
+            </h3>
+          </div>
+        </div>
+      
+        <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 w-100">
+          <!-- Position Column -->
+          <ng-container matColumnDef="id">
+            <th class="thead-light  th " mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+            <td mat-cell *matCellDef="let element"> 
+             
+                <span class="mb-0 text-sm">{{element.id}}</span>
+             
+          </td>
+          </ng-container>
+        
+  
+        
+          <!-- Weight Column -->
+          <ng-container matColumnDef="tags">
+            <th  class="thead-light th  "  mat-header-cell *matHeaderCellDef mat-sort-header> Etiquetas </th>
+            <td mat-cell *matCellDef="let element"> {{element.tags}} </td>
+          </ng-container>
+        
+          <!-- Symbol Column -->
+          <ng-container matColumnDef="Judge">
+            <th  class="thead-light th  " mat-header-cell *matHeaderCellDef mat-sort-header> Juez </th>
+            <td mat-cell *matCellDef="let element"> {{element.Judge}} </td>
+          </ng-container>
+
+      
+          <tr  class="thead-light " mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator hidePageSize="true"  MatFormFieldAppearance = "fill" [pageSize]="5" showFirstLastButtons></mat-paginator>
+      </div>
+    </div>
+    <div class="col-xl-2 order-xl-2 mb-5 mb-xl-0" style="left: 1rem">
+      <div class="card card-profile shadow">
+        <h1 class="text-center">Usuarios</h1>
+        <div class="card-body pt-0 pt-md-4">
+          <div class="text-center usernameBox">
+            <div class="row">
+              <div class="col-5">
+                <p>CodeChef</p>
+              </div>
+              <div class="col-6 userName">
+                <input
+                  id="typeahead-basic"
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="model"
+                  disabled= "{{editJudge}}"
+                  value = "{{studentJudges.CodeChef}}"
+                >
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-5">
+                <p>Codeforces</p>
+              </div>
+              <div class="col-6 userName">
+                <input
+                  id="typeahead-basic"
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="model"
+                  disabled= "{{editJudge}}"
+                  value = "{{studentJudges.CodeForces}}"
+                />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-5">
+                <p>UVA</p>
+              </div>
+              <div class="col-6 userName">
+                <input
+                  id="typeahead-basic"
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="model"
+                  disabled= "{{editJudge}}"
+                  value = "{{studentJudges.UVA}}"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

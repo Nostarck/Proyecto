@@ -1,0 +1,171 @@
+<div class="header bg-gradient-danger pb-8 pt-5 pt-md-8">
+  <div class="container-fluid">
+    <div class="header-body">
+      <!-- Card stats -->
+      <div class="col-12">
+        <div class="card mb-4 mb-xl-3 d-flex flex-row py-4 cardButtons">
+          <div class="col-3 d-flex flex-column middleButtons">
+            <button class="btn btn-icon btn-2 btn-primary" type="button" (click)="openDialog('Agregar', 'group',{})">
+              <span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+              <span class="btn-inner--text">Crear Grupo</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Page content -->
+<div class="acordions card-remove">
+  <mat-accordion>
+    <mat-expansion-panel>
+      <mat-expansion-panel-header class="showPanel" hideToggle>
+        <mat-panel-title>
+          <button mat-stroked-button color="primary">
+            Mostrar/Ocultar Filtros
+          </button></mat-panel-title
+        >
+      </mat-expansion-panel-header>
+      <div class="mb-4 mb-xl-0 d-flex flex-row py-3 h-100">
+        <div class="col-2 bg-transparent">
+          <mat-form-field appearance="fill">
+            <mat-label>Tags</mat-label>
+            <mat-select [formControl]="tags" multiple>
+              <mat-select-trigger>
+                {{ tags.value ? tags.value[0] : "" }}
+                <span
+                  *ngIf="tags.value?.length > 1"
+                  class="example-additional-selection"
+                >
+                  (+{{ tags.value.length - 1 }}
+                  {{ tags.value?.length === 2 ? "other" : "others" }})
+                </span>
+              </mat-select-trigger>
+              <mat-option *ngFor="let tag of tagResult" [value]="tag.name">{{
+                tag.name
+              }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="col-2 d-flex flex-column bg-transparent">
+          <button
+            class="btn btn-icon btn-3 btn-primary mr-auto mb-2"
+            type="button"
+            (click)="filterGroups(tags.value)"
+          >
+            <span class="btn-inner--icon"><i class="ni ni-fat-add"></i></span>
+            <span class="btn-inner--text">Filtrar</span>
+          </button>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
+<!--Tabla-->
+
+<div class="container-fluid mt--7 table">
+  <div class="card shadow">
+    <div class="card-header border-0">
+      <h3 class="mb-0">Grupos
+      </h3>
+    </div>
+  </div>
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    multiTemplateDataRows
+    matSort
+  >
+    <ng-container matColumnDef="select">
+      <th class="thead-light th " mat-header-cell *matHeaderCellDef></th>
+      
+      <td class="td" mat-cell *matCellDef="let row">
+        <a
+        mat-mini-fab 
+          (click)="toggleTableRows(row.id)"
+          color="primary"
+          class=" mx-4 expandButton rounded-circle align-middle"
+          >
+          <span class="font-weight-bold rounded-circle " >
+            {{ row.isExpanded ? "&and;" : " &or;" }} 
+           </span> 
+          </a>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>id</th>
+      <td class="td" mat-cell *matCellDef="let element">
+
+        <span> {{ element.id }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th class="centeredHeader" mat-header-cell *matHeaderCellDef mat-sort-header> Nombre </th>
+      <td class="td" mat-cell *matCellDef="let element">
+        <div class="media-body">
+          <span>{{element.name}} </span>
+          <div ngbDropdown placement="bottom-right" class="editButton">
+            <a class="btn btn-sm btn-icon-only text-light" ngbDropdownToggle>
+              <i class="fas fa-ellipsis-v"></i>
+            </a>
+            <div ngbDropdownMenu class="dropdown-menu-right dropdown-menu-arrow">
+              <a class="dropdown-item" (click)="openDialog('Editar', 'group', element)" href="javascript:void(0)">Editar</a>
+              <a class="dropdown-item" (click)="openDialog('Eliminar', 'group', element)" href="javascript:void(0)">Eliminar</a>
+              <a class="dropdown-item" (click)="openDialog('Exportar', 'group', element)" href="javascript:void(0)">Exportar</a>
+            </div>
+          </div>
+        </div>
+      </td>
+    </ng-container>
+
+    <!-- Template for details row -->
+    <ng-container matColumnDef="expandedDetail">
+      <td mat-cell *matCellDef="let element" [attr.colspan]="displayedGroupsColumnsList.length">
+        <div class="example-element-detail" [@detailExpand]="element.isExpanded ? 'expanded' : 'collapsed'" [style.display]="element.isExpanded ? 'block' : 'none'">
+          <div class="example-element-descriptions">
+            <div>
+              <div class="example-element-description">
+                <!-- Header -->
+                <div class="example-element-description__header">
+                  <div class="example-element-description__cell" *ngFor="let key of headersStudentsColumnsList">
+                    <div>{{key}}</div>
+                  </div>
+                </div>
+                <!-- Contents-->
+                <div *ngFor="let student of element['students']; let idx = index"
+                  class="example-element-description__content" [routerLink] ="['/student-profile', student.id]">
+                  <div class="example-element-description__cell" *ngFor="let key of displayedStudentsColumnsList">
+                    <div *ngIf="key == 'fullname'; else elseBlock">{{ student['name'] + ' ' + student['lastname'] }}</div>
+                    <ng-template #elseBlock> <div>{{student[key]}}</div> </ng-template>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </ng-container>
+
+
+    <tr
+      mat-header-row
+      *matHeaderRowDef="displayedGroupsColumnsList; sticky: true"
+    ></tr>
+    <tr
+      mat-row
+      *matRowDef="let element; columns: displayedGroupsColumnsList"
+      class="student-element-row"
+      [class.student-expanded-row]="element.isExpanded"
+    ></tr>
+
+    <!-- Extra row to show detail content column -->
+    <tr
+      mat-row
+      *matRowDef="let row; columns: ['expandedDetail']"
+      class="student-detail-row"
+    ></tr>
+  </table>
+  <mat-paginator hidePageSize="true"  MatFormFieldAppearance = "fill" [pageSize]="5" showFirstLastButtons></mat-paginator>
+</div>
