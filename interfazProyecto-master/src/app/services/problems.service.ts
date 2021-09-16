@@ -14,11 +14,11 @@ export class ProblemsService {
   // deberia retornar o que espere aca? - no devuelve nada
   getSync(): Observable<any> {
     console.log('controller');
-    return this.http.get<any>('http://localhost:3000/problem/sync');
+    return this.http.get<any>('http://api:3000/problem/sync');
   }
 
   getJudges(): Observable<any> {
-    return this.http.get<any>('http://localhost:3000/problem/judges');
+    return this.http.get<any>('http://api:3000/problem/judges');
   }
 
   getAllProblem(uniqueJudgesIDs: string, uniqueTagsIDs: string): Observable<any> {
@@ -26,12 +26,12 @@ export class ProblemsService {
     const body = { uniqueJudgesIDs: uniqueJudgesIDs,  uniqueTagsIDs: uniqueTagsIDs};
 
   
-    return this.http.post<any>('http://localhost:3000/problem/getall', body);
+    return this.http.post<any>('http://api:3000/problem/getall', body);
   }
 
   updateProblem(uniqueProblemID: string, problemComment: string) {
     const body = { problemComment: problemComment };
-    this.http.put<any>('http://localhost:3000/problem/update/' + uniqueProblemID, body).subscribe(
+    this.http.put<any>('http://api:3000/problem/update/' + uniqueProblemID, body).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);
@@ -46,7 +46,7 @@ export class ProblemsService {
 
   addTagToProblem(uniqueTagsIDs: string, uniqueProblemsIDs: string) {
     const body = { uniqueTagsIDs: uniqueTagsIDs,  uniqueProblemsIDs: uniqueProblemsIDs};
-    this.http.put<any>('http://localhost:3000/problem/addtag', body).subscribe(
+    this.http.put<any>('http://api:3000/problem/addtag', body).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);
@@ -64,7 +64,7 @@ export class ProblemsService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json'}),
       body : { uniqueTagsIDs: uniqueTagsIDs,  uniqueProblemsIDs: uniqueProblemsIDs}
     };
-    return this.http.delete<any>('http://localhost:3000/problem/removetag', options).subscribe(
+    return this.http.delete<any>('http://api:3000/problem/removetag', options).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);

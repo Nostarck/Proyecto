@@ -12,7 +12,7 @@ export class GroupsService {
   constructor(private http: HttpClient) { }
 
   exportGroup(uniqueGroupID: string, groupName: string) {    
-    this.http.get('http://localhost:3000/group/export/' + uniqueGroupID, {responseType: 'text/csv; charset=utf-8' as 'json'}).subscribe(result => {
+    this.http.get('http://api:3000/group/export/' + uniqueGroupID, {responseType: 'text/csv; charset=utf-8' as 'json'}).subscribe(result => {
       var a = document.createElement("a");
  
       if (window.navigator.msSaveOrOpenBlob) {
@@ -32,17 +32,17 @@ export class GroupsService {
   }
 
   getGroupsNames(): Observable<any> {
-    return this.http.get<any>('http://localhost:3000/group/filter');
+    return this.http.get<any>('http://api:3000/group/filter');
   }
 
   getAllGroups(tags: string): Observable<any> {
     const body = {tags : tags};
-    return this.http.post<any>('http://localhost:3000/group/getall', body);
+    return this.http.post<any>('http://api:3000/group/getall', body);
   }
 
   updateGroup(uniqueGroupID: string, groupName: string) {
     const body = { groupName: groupName };
-    this.http.put<any>('http://localhost:3000/group/update/' + uniqueGroupID, body).subscribe(
+    this.http.put<any>('http://api:3000/group/update/' + uniqueGroupID, body).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);
@@ -56,7 +56,7 @@ export class GroupsService {
   }
 
   deleteGroup(uniqueGroupID: string) {
-    return this.http.delete<any>('http://localhost:3000/group/delete/' + uniqueGroupID).subscribe(
+    return this.http.delete<any>('http://api:3000/group/delete/' + uniqueGroupID).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);
@@ -71,6 +71,6 @@ export class GroupsService {
 
   addGroup(groupName: string): Observable<any> {
     const body = { groupName: groupName };
-    return this.http.post<any>('http://localhost:3000/group/add', body);
+    return this.http.post<any>('http://api:3000/group/add', body);
   }
 }

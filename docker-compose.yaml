@@ -1,0 +1,65 @@
+version: "3.9"
+services:
+  api:
+    ports: 
+      - 3000:3000
+    image: scanner-api
+    build:
+        context: api-master
+        dockerfile: Dockerfile
+    environment:
+      - SECRET_KEY=RESTFULAPIs
+      - PORT=3000
+      - DATABASE=postgres
+      - DATABASE_HOST=db
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_MAX_CONNECTIONS=100
+      - DATABASE_TIME=30000 #timeout
+      #codechef
+      - CLIENT_ID=ce8dd1716ceb5641237ddb77eaf35615
+      - CLIENT_SECRET=6a3f2deeca7d06b9f621effe163b5811
+      - CODECHEF_REDIRECT_URI=http://localhost:8000/ #should be deployed url
+      - CODECHEF_GET_TOKEN=https://api.codechef.com/oauth/token
+      - CODECHEF_GET_USERS=https://api.codechef.com/users/
+      #CodeForces URLs for API calls
+      - CODEFORCES_GET_USERS=https://codeforces.com/api/user.status
+      #UVA URLs for API calls
+      - UVA_GET_ID=https://uhunt.onlinejudge.org/api/uname2uid/
+      - UVA_GET_USERS=https://uhunt.onlinejudge.org/api/subs-user/
+    expose:
+      - "3000"
+    command: "npm start"
+  front:
+    ports:
+      - 8000:8000
+      - 4200:4200
+    expose:
+      - 8000
+      - 4200
+    image: scanner-front
+    build:
+      context: interfazProyecto-master
+      dockerfile: Dockerfile
+    command: "npm start"
+  db:
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    build:
+      context: db-proyecto-de-software
+      dockerfile: Dockerfile
+    image: scanner-db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_HOST_AUTH_METHOD: md5
+    volumes:
+        - "base:/var/lib/postgresql/data"
+
+volumes:
+  base:

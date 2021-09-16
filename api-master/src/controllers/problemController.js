@@ -3,6 +3,7 @@ import axios from 'axios';
 
 // Object created in memory to set the Pool connection with PostgresSQL DB
 const config = {
+    host: process.env.DATABASE_HOST,
     user: process.env.DATABASE_USER,
     database: process.env.DATABASE,
     password: process.env.DATABASE_PASSWORD,
