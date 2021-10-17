@@ -64,7 +64,8 @@ export const register = (req, res) => {
 export const login = (req, res) => {
 
     var username = req.body.username;
-
+    console.log("trying to log in");
+    console.log(req);
     findUserByUsername(username);
 
     // Internal function to search the user in the DB

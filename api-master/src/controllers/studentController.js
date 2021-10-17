@@ -25,6 +25,8 @@ var pool = new pg.Pool(config);
 //                            the student usernames for the judges
 
 export const addStudent = async (req, res) => {
+    console.log("ingresando a un estudiante");
+    console.log(req.body);
     var userID = req.user._id;
 
     var studentUsernames = req.body.judges.split(";");
@@ -38,6 +40,9 @@ export const addStudent = async (req, res) => {
         studentJudgeIds += ";";
     }
     studentJudgeIds = studentJudgeIds.slice(0, -1);
+    console.log("jueces");
+    console.log(req.body.judges);
+
     // Preparing the pool connection to the DB
     pool.connect(function (err, client, done) {
         if (err) {
@@ -101,6 +106,7 @@ export const deleteStudent = (req, res) => {
 //                            the student usernames for the judges
 
 export const updateStudent = async (req, res) => {
+    console.log("ingresando a un estudiante");
     var userID = req.user._id;
 
     var studentUsernames = req.body.judges.split(";");
@@ -115,6 +121,7 @@ export const updateStudent = async (req, res) => {
     }
     studentJudgeIds = studentJudgeIds.slice(0, -1);
     // Preparing the pool connection to the DB
+    console.log(studentJudgeIds);
     pool.connect(function (err, client, done) {
         if (err) {
             console.log("Not able to stablish connection: " + err);
@@ -141,6 +148,7 @@ export const updateStudent = async (req, res) => {
 //                            the group unique id (if it's necessary to filter)
 
 export const getStudentsInfo = async (req, res) => {
+    console.log("wooow estoy pidiendo la informacion de los estudiantes xDDD");
     req.setTimeout(1000);
     var userID = req.user._id;
 
@@ -149,6 +157,7 @@ export const getStudentsInfo = async (req, res) => {
 
     try{    
         // Execution of a queries directly into the DB with parameters
+        // esto saca la informacion de todos los estudiantes, pero no los jueces
         const studentsResult = await client.query('SELECT * from prc_get_students($1, $2)',[userID, req.body.uniqueGroupID]).catch(err => {
             if (err) {
                 console.log("Not able to stablish connection: " + err);
@@ -159,12 +168,15 @@ export const getStudentsInfo = async (req, res) => {
 
         var students = [];
         var uniqueStudentsIDs = "";
+        console.log(studentsResult.rows);
 
         for (let i = 0; i < studentsResult.rows.length; i++) {
             students.push(flattenObjectExceptArr(studentsResult.rows[i]));
             uniqueStudentsIDs += students[i]["id"] + ";";
         }
+        console.log(students);
         uniqueStudentsIDs = uniqueStudentsIDs.slice(0, -1);
+        console.log(uniqueStudentsIDs);
 
         const studentsUsernamesResult = await client.query('SELECT * from prc_get_students_usernames($1, $2)',[userID, uniqueStudentsIDs]).catch(err => {
             if (err) {
@@ -173,7 +185,8 @@ export const getStudentsInfo = async (req, res) => {
                 res.status(400).send(err);
             }
         });
-
+        console.log(studentsUsernamesResult);
+        console.log(studentsUsernamesResult.rows);
         var studentsUsernames = [];
 
         for (let i = 0; i < studentsUsernamesResult.rows.length; i++) {
@@ -183,7 +196,7 @@ export const getStudentsInfo = async (req, res) => {
 
         for(var i = 0; i < students.length; i++) {
             var usernames = studentsUsernames.filter(item => item.id == students[i]["id"]);
-            
+            console.log(usernames);
             for (var key in usernames[0]){
                 students[i][key] = usernames[0][key];
                 

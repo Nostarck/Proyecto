@@ -155,7 +155,7 @@ CREATE TABLE tbl_student_error_log (
 
 -----------------------------------SPs---------------------------------------------
 ---------------------------------STUDENTS-----------------------------------------
-
+--esto saca la informacion de todos los estudiantes, pero no los jueces
 CREATE OR REPLACE FUNCTION prc_get_students(user_id TEXT,groups TEXT)
 	RETURNS TABLE (students_info JSON) AS
 	$BODY$
@@ -477,6 +477,7 @@ CREATE OR REPLACE FUNCTION prc_add_student(userID TEXT, student_id TEXT, student
             	BEGIN
 					--INSERT IN TBL_STUDENT
 					INSERT INTO TBL_STUDENT
+					
 						VALUES(_id_,student_id,student_name,student_last_name,CURRENT_DATE,CURRENT_DATE);
 					--INSERT IN TBL_USER_STUDENT
 					INSERT INTO TBL_USER_STUDENT VALUES(UUID(userID),_id_);
@@ -1006,3 +1007,5 @@ SELECT * from prc_register_user('usertest', 'test@test.com', '$2b$10$hyfKWZ6zXiW
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'CodeForces', current_date);
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'CodeChef', current_date);
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'UVA', current_date);
+insert into tbl_judge(id, name, created) values (gen_random_uuid(),'OmegaUp', current_date);
+
