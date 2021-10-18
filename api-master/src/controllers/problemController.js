@@ -1,5 +1,6 @@
 import pg from 'pg';
 import axios from 'axios';
+import cheerio from 'cheerio';
 
 // Object created in memory to set the Pool connection with PostgresSQL DB
 const config = {
@@ -435,6 +436,40 @@ async function uvaAPICall(userID, studentsJudgeUVA) {
         }
     }
 }
+
+
+const problemsSolvedByUserSPOJ = async (username) => {
+    const page = await axios.get(`https://www.spoj.com/users/${username}/`);
+    const $ = await cheerio.load(page.data);
+    const table =  $('.table-condensed')[0];
+    var tbody;
+    table.children.forEach((e) =>{
+      if (e.name == 'tbody'){
+        tbody = e;
+      }
+    })
+    //console.log(tbody.children)
+    const tableElements = tbody.children.map(row => {
+      if (row.name == 'tr'){
+        return row.children.map(elem => {
+          if(elem.name == 'td'){
+            return elem.children[0].children;
+          } else{
+            return [];
+          }
+        });
+      } else{
+        return [];
+      }
+    }).flat();
+    const nonEmptyTableElements = tableElements.filter(e => e.length).flat();
+    const solvedProblems = nonEmptyTableElements.map(e => e.data);
+
+
+    console.log(solvedProblems);
+    return solvedProblems;
+}
+
 
 const flattenObject = (obj) => {
     const flattened = {}
