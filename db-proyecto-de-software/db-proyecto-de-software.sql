@@ -1008,4 +1008,5 @@ insert into tbl_judge(id, name, created) values (gen_random_uuid(),'CodeForces',
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'CodeChef', current_date);
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'UVA', current_date);
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'OmegaUp', current_date);
+insert into tbl_judge(id, name, created) values (gen_random_uuid(),'SPOJ', current_date);
 

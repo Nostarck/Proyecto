@@ -171,7 +171,6 @@ export class ProblemasComponent implements OnInit {
 
   }
 
-
   //refresh button
 
   onSync(){
@@ -380,6 +379,7 @@ export class ProblemasComponent implements OnInit {
     this.problemsService.getJudges().subscribe(
       data => {
         this.judgesList = data;
+        
 
       },
       error => console.log("Error: ", error),
