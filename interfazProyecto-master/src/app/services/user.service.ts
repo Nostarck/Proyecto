@@ -18,7 +18,7 @@ export class UserService {
 
   login(username: string, password: string): Observable<any> {
     const body = { username: username, password: password };
-    return this.http.post<any>('http://api:3000/user/login', body);
+    return this.http.post<any>('http://localhost:3000/user/login', body);
   }
 
   isTokenExpired() {

@@ -153,7 +153,7 @@
       <td mat-cell *matCellDef="let element"> 
         <div class="media-body">
 
-          <span class="mb-0 text-sm">{{element.studentId}}</span>
+          <span class="mb-0 text-sm"> asd {{element.studentId}}</span>
         </div>
     </td>
     </ng-container>
@@ -183,6 +183,14 @@
     <ng-container matColumnDef="UVA">
       <th  class="thead-light th  " mat-header-cell *matHeaderCellDef mat-sort-header> Usuario UVA  </th>
       <td mat-cell *matCellDef="let element"> {{element.UVA}} </td>
+    </ng-container>
+    <ng-container matColumnDef="OmegaUp">
+      <th  class="thead-light th  " mat-header-cell *matHeaderCellDef mat-sort-header> Usuario OmegaUp  </th>
+      <td mat-cell *matCellDef="let element"> {{element.OmegaUp}} </td>
+    </ng-container>
+    <ng-container matColumnDef="SPOJ">
+      <th  class="thead-light th  " mat-header-cell *matHeaderCellDef mat-sort-header> Usuario SPOJ  </th>
+      <td mat-cell *matCellDef="let element"> {{element.SPOJ}} </td>
     </ng-container>
 
  

@@ -18,12 +18,12 @@ export class StudentsService {
   importStudent(form: FormGroup): Observable<any> {
     var formData: any = new FormData();
     formData.append("file", form.get('file').value);
-    return this.http.post<any>('http://api:3000/student/importstudent', formData);
+    return this.http.post<any>('http://localhost:3000/student/importstudent', formData);
   }
-
+//sdf
   addStudentToGroup(uniqueStudentsIDs: string, uniqueGroupsIDs: string) {
     const body = { uniqueStudentsIDs: uniqueStudentsIDs,  uniqueGroupsIDs: uniqueGroupsIDs};
-    this.http.put<any>('http://api:3000/student/addtogroup', body).subscribe(
+    this.http.put<any>('http://localhost:3000/student/addtogroup', body).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);
@@ -41,7 +41,7 @@ export class StudentsService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json'}),
       body : { uniqueStudentsIDs: uniqueStudentsIDs,  uniqueGroupsIDs: uniqueGroupsIDs}
     };
-    return this.http.delete<any>('http://api:3000/student/removefromgroup', options).subscribe(
+    return this.http.delete<any>('http://localhost:3000/student/removefromgroup', options).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);
@@ -57,17 +57,17 @@ export class StudentsService {
   getStudentProfile(uniqueStudentID: string, uniqueTagIDs: string): Observable<any> {
     const body = { uniqueTagIDs : uniqueTagIDs};
     console.log(body.uniqueTagIDs);
-    return this.http.post<any>('http://api:3000/student/profile/' + uniqueStudentID, body);
+    return this.http.post<any>('http://localhost:3000/student/profile/' + uniqueStudentID, body);
   }
 
   getAllStudent(uniqueGroupID: string): Observable<any> {
     const body = {uniqueGroupID : uniqueGroupID};
-    return this.http.post<any>('http://api:3000/student/getall', body);
+    return this.http.post<any>('http://localhost:3000/student/getall', body);
   }
 
   updateStudent(uniqueStudentID: string, studentID: string, studentName: string, studentLastName: string, judges: string) {
     const body = { studentID: studentID,  studentName: studentName, studentLastName: studentLastName, judges: judges};
-    this.http.put<any>('http://api:3000/student/update/' + uniqueStudentID, body).subscribe(
+    this.http.put<any>('http://localhost:3000/student/update/' + uniqueStudentID, body).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);
@@ -85,7 +85,7 @@ export class StudentsService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json'}),
       body : { uniqueStudentID: uniqueStudentID }
     };
-    return this.http.delete<any>('http://api:3000/student/delete/', options).subscribe(
+    return this.http.delete<any>('http://localhost:3000/student/delete/', options).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);
@@ -99,8 +99,8 @@ export class StudentsService {
   }
 
 
-  addStudent(studentID: string, studentName: string, studentLastName: string, judges: string): Observable<any> {
-    const body = { studentID: studentID,  studentName: studentName, studentLastName: studentLastName, judges: judges};
-    return this.http.post<any>('http://api:3000/student/add', body);
+  addStudent(studentID: string, studentName: string, studentLastName: string, judges: string, judgeTest: String): Observable<any> {
+    const body = { studentID: studentID,  studentName: studentName, studentLastName: studentLastName, judges: judges, judgeTest: judgeTest};
+    return this.http.post<any>('http://localhost:3000/student/add', body);
   }
 }

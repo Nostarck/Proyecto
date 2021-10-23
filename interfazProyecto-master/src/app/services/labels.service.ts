@@ -12,16 +12,16 @@ export class LabelsService {
   constructor(private http: HttpClient) { }
 
   getTagNames(): Observable<any> {
-    return this.http.get<any>('http://api:3000/tag/getnames');
+    return this.http.get<any>('http://localhost:3000/tag/getnames');
   }
 
   getAllTags(): Observable<any> {
-    return this.http.get<any>('http://api:3000/tag/getall');
+    return this.http.get<any>('http://localhost:3000/tag/getall');
   }
 
   updateTag(uniqueTagID: string, tagName: string) {
     const body = { tagName: tagName };
-    this.http.put<any>('http://api:3000/tag/update/' + uniqueTagID, body).subscribe(
+    this.http.put<any>('http://localhost:3000/tag/update/' + uniqueTagID, body).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);
@@ -39,7 +39,7 @@ export class LabelsService {
       headers: new HttpHeaders({ 'Content-Type': 'application/json'}),
       body : { uniqueTagID: uniqueTagID }
     };
-    return this.http.delete<any>('http://api:3000/tag/delete', options).subscribe(
+    return this.http.delete<any>('http://localhost:3000/tag/delete', options).subscribe(
       (val) => {
         console.log("POST call successful value returned in body",
           val);
@@ -54,6 +54,6 @@ export class LabelsService {
 
   addTag(tagName: string): Observable<any> {
     const body = { tagName: tagName };
-    return this.http.post<any>('http://api:3000/tag/add', body);
+    return this.http.post<any>('http://localhost:3000/tag/add', body);
   }
 }

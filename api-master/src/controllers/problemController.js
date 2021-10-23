@@ -1,6 +1,6 @@
 import pg from 'pg';
 import axios from 'axios';
-
+import cheerio from 'cheerio';
 // Object created in memory to set the Pool connection with PostgresSQL DB
 const config = {
     host: process.env.DATABASE_HOST,
@@ -172,12 +172,14 @@ function sleep(ms) {
 // Function to synchronize all the problems associated to any student based on the user id
 
 export const syncProblems = async (req, res) => {
+    console.log("sincronizando problemas de picha");
     var userID = req.user._id;
 
     // Preparing the pool connection to the DB
     const client =  await pool.connect();
     try{
         // Execution of a queries directly into the DB with parameters
+        // devuelve el id de los usuarios y sus usernames en cada juez
         const studentsJudgeCodeForcesResult = await client.query('SELECT * from prc_get_students_judge($1, $2)', [userID, "CodeForces"]).catch(err => {
             if (err) {
                 console.log("Not able to stablish connection: " + err);
@@ -199,24 +201,43 @@ export const syncProblems = async (req, res) => {
                 res.status(400).send(err);
             }
         });
+        const studentsJudgeSPOJResult = await client.query('SELECT * from prc_get_students_judge($1, $2)', [userID, "SPOJ"]).catch(err => {
+            if (err) {
+                console.log("Not able to stablish connection: " + err);
+                // Return the error with BAD REQUEST (400) status
+                res.status(400).send(err);
+            }
+        });
 
+
+        console.log(studentsJudgeCodeForcesResult.rows);
+        console.log(studentsJudgeCodeChefResult.rows);
+        console.log(studentsJudgeUVAResult.rows);
+        console.log(studentsJudgeSPOJResult.rows);
+        console.log("----------------------------------");
         var studentsJudgeCodeForces = [];
         var studentsJudgeCodeChef = [];
         var studentsJudgeUVA = [];
+        var studentsJudgeSPOJ = [];
 
         if (studentsJudgeUVAResult.rows.length == studentsJudgeCodeChefResult.rows.length && studentsJudgeCodeChefResult.rows.length == studentsJudgeCodeForcesResult.rows.length){
             for (let i = 0; i < studentsJudgeUVAResult.rows.length; i++) {
                 studentsJudgeUVA.push(flattenObject(studentsJudgeUVAResult.rows[i]));
                 studentsJudgeCodeChef.push(flattenObject(studentsJudgeCodeChefResult.rows[i]));
                 studentsJudgeCodeForces.push(flattenObject(studentsJudgeCodeForcesResult.rows[i]));
+                studentsJudgeSPOJ.push(flattenObject(studentsJudgeSPOJResult.rows[i]));
             }
         } else {
             throw err;
         }
-    
-        const [codeForcesResult, codeChefResult, uvaResult] = await Promise.all([codeForcesAPICall(userID, studentsJudgeCodeForces),
+
+        console.log(studentsJudgeCodeChef);
+        console.log(uvaAPICall(userID, studentsJudgeUVA));
+
+        
+        const [codeForcesResult, codeChefResult, uvaResult, SPOJResult] = await Promise.all([codeForcesAPICall(userID, studentsJudgeCodeForces),
         codeChefAPICall(userID, studentsJudgeCodeChef),
-        uvaAPICall(userID, studentsJudgeUVA)]);
+        uvaAPICall(userID, studentsJudgeUVA), SpojAPICall(userID, studentsJudgeSPOJ)]);
 
         console.log("The API calls were completed");
         // Return the result from the DB with OK (200) status
@@ -228,6 +249,42 @@ export const syncProblems = async (req, res) => {
     }
 }
 
+
+async function SpojAPICall(userID, studentsJudgeSPOJ){
+    //debo agarrar los problemas de cada estudiante
+    // meter estos problemas a la base de datos
+    // y creo que ya xd
+    var judgeName = "SPOJ";
+    console.log("SPOJ API CALLESHION");
+    for(let i = 0; i < studentsJudgeSPOJ.length; i++){
+        var userName = studentsJudgeSPOJ[i]["studentUsername"];
+        var problemsSolvedList = await problemsSolvedByUserSPOJ(studentsJudgeSPOJ[i]["studentUsername"]);
+        console.log("recorriendo problemas");
+        var problems = "";
+        for(let j = 0; j < problemsSolvedList.length; j++){
+            problems += problemsSolvedList[j] + ";";
+        }
+        problems = problems.slice(0,-1);
+        console.log(problems);
+        pool.connect(function (err, client, done){
+            if (err) {
+                console.log("Not able to stablish connection: " + err);
+            } else {
+                //-- esto es para sincronizar los problemas resueltos por un estudiante, si el problema ya existen la DB solo se asocia que el estudiante lo resolvio
+                // Execution of a query directly into the DB with parameters
+                client.query('SELECT * from prc_update_student_problems($1, $2, $3, $4)', [userID, studentsJudgeSPOJ[i]["studentId"], judgeName, problems], function (err, result) {
+                    done();
+                    if (err)
+                        console.log(err);
+                });  
+            }
+        })
+    }
+
+
+    
+
+}
 
 //  Internal function to make the calls to the CodeForces API and retrieve the problems solved for each student 
 //      with the user id and the students information as parameters
@@ -249,6 +306,8 @@ async function codeForcesAPICall(userID, studentsJudgeCodeForces) {
                     problems += studentProblems[j]["problem"]["contestId"] + studentProblems[j]["problem"]["index"] + ";";
                 }
                 problems = problems.slice(0, -1);
+                console.log("problemas de codeforces");
+                console.log(problems);
                 // Preparing the pool connection to the DB
                 pool.connect(function (err, client, done) {
                     if (err) {
@@ -435,6 +494,40 @@ async function uvaAPICall(userID, studentsJudgeUVA) {
         }
     }
 }
+
+const problemsSolvedByUserSPOJ = async (username) => {
+    const page = await axios.get(`https://www.spoj.com/users/${username}/`);
+    const $ = await cheerio.load(page.data);
+    const table =  $('.table-condensed')[0];
+    var tbody;
+    table.children.forEach((e) =>{
+      if (e.name == 'tbody'){
+        tbody = e;
+      }
+    })
+    //console.log(tbody.children)
+    const tableElements = tbody.children.map(row => {
+      if (row.name == 'tr'){
+        return row.children.map(elem => {
+          if(elem.name == 'td'){
+            return elem.children[0].children;
+          } else{
+            return [];
+          }
+        });
+      } else{
+        return [];
+      }
+    }).flat();
+    const nonEmptyTableElements = tableElements.filter(e => e.length).flat();
+    const solvedProblems = nonEmptyTableElements.map(e => e.data);
+
+    console.log("problemas xD");
+    console.log(solvedProblems);
+    return solvedProblems;
+}
+
+
 
 const flattenObject = (obj) => {
     const flattened = {}
