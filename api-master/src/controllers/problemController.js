@@ -3,6 +3,15 @@ import axios from 'axios';
 import cheerio from 'cheerio';
 import puppeteer from 'puppeteer';
 
+var puppeteerBrowser = null;
+const getPuppeteerBrowser = async(){
+    if (puppeteerBrowser != null){
+        return puppeteerBrowser;
+    } else{
+        return puppeteerBrowser = await puppeteer.launch();
+    }
+}
+
 // Object created in memory to set the Pool connection with PostgresSQL DB
 const config = {
     host: process.env.DATABASE_HOST,
@@ -529,14 +538,15 @@ const problemsSolvedByUserSPOJ = async (username) => {
 }
 
 /*
-  The try-catch block will take up to 30 seconds. timeout can be changed if needed by passing {timeout:milliseconds}
+    will wait for problems to appear for 3 seconds after the network goes idle. 
+    probably don't need to wait at all but w/e
 */
 const problemsSolvedByUserCSAcademy = async (username) => {
-    const browser = await puppeteer.launch();
+    const browser = await getPuppeteerBrowser();
     const page = await browser.newPage();
-    await page.goto(`http://www.csacademy.com/user/${username}/`);
+    await page.goto(`http://www.csacademy.com/user/${username}/`, {waitUntil:'networkidle2'});
     try{
-      await page.waitForSelector('.INFO-36');
+      await page.waitForSelector('.INFO-36', {timeout:3000});
     } catch(e){
       return [];
     }
@@ -545,6 +555,7 @@ const problemsSolvedByUserCSAcademy = async (username) => {
       return (await (await ElementHandle.getProperty('href')).jsonValue()).split('/').slice(-1)[0];
     });
     const problems = await Promise.all(problemPromises);
+    page.close();
 
     return problems;
 }
