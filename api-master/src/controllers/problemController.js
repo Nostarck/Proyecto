@@ -1,6 +1,8 @@
 import pg from 'pg';
 import axios from 'axios';
 import cheerio from 'cheerio';
+import puppeteer from 'puppeteer';
+
 // Object created in memory to set the Pool connection with PostgresSQL DB
 const config = {
     host: process.env.DATABASE_HOST,
@@ -505,7 +507,6 @@ const problemsSolvedByUserSPOJ = async (username) => {
         tbody = e;
       }
     })
-    //console.log(tbody.children)
     const tableElements = tbody.children.map(row => {
       if (row.name == 'tr'){
         return row.children.map(elem => {
@@ -522,11 +523,31 @@ const problemsSolvedByUserSPOJ = async (username) => {
     const nonEmptyTableElements = tableElements.filter(e => e.length).flat();
     const solvedProblems = nonEmptyTableElements.map(e => e.data);
 
-    console.log("problemas xD");
+    console.log("problemas xD"); //remove?
     console.log(solvedProblems);
     return solvedProblems;
 }
 
+/*
+  The try-catch block will take up to 30 seconds. timeout can be changed if needed by passing {timeout:milliseconds}
+*/
+const problemsSolvedByUserCSAcademy = async (username) => {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(`http://www.csacademy.com/user/${username}/`);
+    try{
+      await page.waitForSelector('.INFO-36');
+    } catch(e){
+      return [];
+    }
+    const problemElements = await page.$$('.INFO-36');
+    const problemPromises = problemElements.map(async (ElementHandle) => {
+      return (await (await ElementHandle.getProperty('href')).jsonValue()).split('/').slice(-1)[0];
+    });
+    const problems = await Promise.all(problemPromises);
+
+    return problems;
+}
 
 
 const flattenObject = (obj) => {
