@@ -47,7 +47,7 @@ export class StudentComponent implements OnInit {
     "CodeForces",
     "CodeChef",
     "UVA",
-    "OmegaUp",
+    "CsAcademy",
     "SPOJ",
     "fecha",
   ];
@@ -233,10 +233,10 @@ export class StudentComponent implements OnInit {
 
   addRowData(result) {
     var myDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
-    var judges = [result.CodeForces, result.CodeChef, result.UVA, result.omegaUp, result.SPOJ];
+    var judges = [result.CodeForces, result.CodeChef, result.UVA, result.CsAcademy, result.SPOJ];
     var stringjudge = judges.join(";");
     this.studentsService
-      .addStudent(result.studentId, result.name, result.lastName, stringjudge, result.omegaUp)
+      .addStudent(result.studentId, result.name, result.lastName, stringjudge, result.CsAcademy)
       .subscribe(
         (data) => {
           //addStudents solo devuelve el id
@@ -250,7 +250,7 @@ export class StudentComponent implements OnInit {
             CodeForces: result.CodeForces,
             CodeChef: result.CodeChef,
             UVA: result.UVA,
-            OmegaUp: result.omegaUp,
+            CsAcademy: result.CsAcademy,
             SPOJ: result.SPOJ
           });
         },
@@ -297,7 +297,7 @@ export class StudentComponent implements OnInit {
   }
 
   updateRowData(row_obj) {
-    var judges = [row_obj.CodeForces, row_obj.CodeChef, row_obj.UVA, row_obj.OmegaUp]
+    var judges = [row_obj.CodeForces, row_obj.CodeChef, row_obj.UVA, row_obj.CsAcademy]
     var judgesString =judges.join(";")
     this.studentsService.updateStudent(row_obj.id,row_obj.studentId, row_obj.name, row_obj.lastName, judgesString);
     const foundIndex = this.allStudentsResult.findIndex((x) => x.id === row_obj.id);
@@ -308,7 +308,7 @@ export class StudentComponent implements OnInit {
     this.allStudentsResult[foundIndex].CodeForces =row_obj.CodeForces;
     this.allStudentsResult[foundIndex].CodeChef = row_obj.CodeChef;
     this.allStudentsResult[foundIndex].UVA = row_obj.UVA;
-    this.allStudentsResult[foundIndex].OmegaUp = row_obj.OmegaUp;
+    this.allStudentsResult[foundIndex].CsAcademy = row_obj.CsAcademy;
     this.allStudentsResult[foundIndex].SPOJ = row_obj.SPOJ;
     
 

@@ -4,11 +4,14 @@ import cheerio from 'cheerio';
 import puppeteer from 'puppeteer';
 
 var puppeteerBrowser = null;
-const getPuppeteerBrowser = async(){
+const getPuppeteerBrowser = async()=>{
     if (puppeteerBrowser != null){
         return puppeteerBrowser;
     } else{
-        return puppeteerBrowser = await puppeteer.launch();
+        return puppeteerBrowser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox']
+         });
     }
 }
 
@@ -183,7 +186,6 @@ function sleep(ms) {
 // Function to synchronize all the problems associated to any student based on the user id
 
 export const syncProblems = async (req, res) => {
-    console.log("sincronizando problemas de picha");
     var userID = req.user._id;
 
     // Preparing the pool connection to the DB
@@ -219,17 +221,26 @@ export const syncProblems = async (req, res) => {
                 res.status(400).send(err);
             }
         });
+        const studentsCsAcademyResult = await client.query('SELECT * from prc_get_students_judge($1, $2)', [userID, "CsAcademy"]).catch(err => {
+            if (err) {
+                console.log("Not able to stablish connection: " + err);
+                // Return the error with BAD REQUEST (400) status
+                res.status(400).send(err);
+            }
+        });
 
 
         console.log(studentsJudgeCodeForcesResult.rows);
         console.log(studentsJudgeCodeChefResult.rows);
         console.log(studentsJudgeUVAResult.rows);
         console.log(studentsJudgeSPOJResult.rows);
+        console.log(studentsCsAcademyResult.rows);
         console.log("----------------------------------");
         var studentsJudgeCodeForces = [];
         var studentsJudgeCodeChef = [];
         var studentsJudgeUVA = [];
         var studentsJudgeSPOJ = [];
+        var studentsJudgeCsAcademy = [];
 
         if (studentsJudgeUVAResult.rows.length == studentsJudgeCodeChefResult.rows.length && studentsJudgeCodeChefResult.rows.length == studentsJudgeCodeForcesResult.rows.length){
             for (let i = 0; i < studentsJudgeUVAResult.rows.length; i++) {
@@ -237,18 +248,16 @@ export const syncProblems = async (req, res) => {
                 studentsJudgeCodeChef.push(flattenObject(studentsJudgeCodeChefResult.rows[i]));
                 studentsJudgeCodeForces.push(flattenObject(studentsJudgeCodeForcesResult.rows[i]));
                 studentsJudgeSPOJ.push(flattenObject(studentsJudgeSPOJResult.rows[i]));
+                studentsJudgeCsAcademy.push(flattenObject(studentsCsAcademyResult.rows[i]));
             }
         } else {
             throw err;
         }
 
-        console.log(studentsJudgeCodeChef);
-        console.log(uvaAPICall(userID, studentsJudgeUVA));
-
         
-        const [codeForcesResult, codeChefResult, uvaResult, SPOJResult] = await Promise.all([codeForcesAPICall(userID, studentsJudgeCodeForces),
+        const [codeForcesResult, codeChefResult, uvaResult, SPOJResult, CsAcademyResult] = await Promise.all([codeForcesAPICall(userID, studentsJudgeCodeForces),
         codeChefAPICall(userID, studentsJudgeCodeChef),
-        uvaAPICall(userID, studentsJudgeUVA), SpojAPICall(userID, studentsJudgeSPOJ)]);
+        uvaAPICall(userID, studentsJudgeUVA), SpojAPICall(userID, studentsJudgeSPOJ)], CsAcademyAPICall(userID, studentsJudgeCsAcademy));
 
         console.log("The API calls were completed");
         // Return the result from the DB with OK (200) status
@@ -262,21 +271,19 @@ export const syncProblems = async (req, res) => {
 
 
 async function SpojAPICall(userID, studentsJudgeSPOJ){
-    //debo agarrar los problemas de cada estudiante
-    // meter estos problemas a la base de datos
-    // y creo que ya xd
+    
     var judgeName = "SPOJ";
-    console.log("SPOJ API CALLESHION");
+    
     for(let i = 0; i < studentsJudgeSPOJ.length; i++){
         var userName = studentsJudgeSPOJ[i]["studentUsername"];
-        var problemsSolvedList = await problemsSolvedByUserSPOJ(studentsJudgeSPOJ[i]["studentUsername"]);
-        console.log("recorriendo problemas");
+        var problemsSolvedList = await problemsSolvedByUserSPOJ(userName);
+        
         var problems = "";
         for(let j = 0; j < problemsSolvedList.length; j++){
             problems += problemsSolvedList[j] + ";";
         }
         problems = problems.slice(0,-1);
-        console.log(problems);
+        
         pool.connect(function (err, client, done){
             if (err) {
                 console.log("Not able to stablish connection: " + err);
@@ -291,10 +298,37 @@ async function SpojAPICall(userID, studentsJudgeSPOJ){
             }
         })
     }
+}
 
 
+async function CsAcademyAPICall(userID, studentsJudgeCsAcademy){
+    var judgeName = "CsAcademy";
     
+    for(let i = 0; i < studentsJudgeCsAcademy.length; i++){
+        var userName = studentsJudgeCsAcademy[i]["studentUsername"];
+        var problemsSolvedList = await problemsSolvedByUserCSAcademy(studentsJudgeCsAcademy[i]["studentUsername"]);
+        
+        var problems = "";
+        for(let j = 0; j < problemsSolvedList.length; j++){
+            problems += problemsSolvedList[j] + ";";
+        }
+       
+        problems = problems.slice(0,-1);
+        pool.connect(function (err, client, done){
+            if (err) {
+                console.log("Not able to stablish connection: " + err);
+            } else {
+                //-- esto es para sincronizar los problemas resueltos por un estudiante, si el problema ya existen la DB solo se asocia que el estudiante lo resolvio
+                // Execution of a query directly into the DB with parameters
+                client.query('SELECT * from prc_update_student_problems($1, $2, $3, $4)', [userID, studentsJudgeCsAcademy[i]["studentId"], judgeName, problems], function (err, result) {
+                    done();
+                    if (err)
+                        console.log(err);
+                });  
+            }
+        })
 
+    }
 }
 
 //  Internal function to make the calls to the CodeForces API and retrieve the problems solved for each student 
@@ -531,9 +565,6 @@ const problemsSolvedByUserSPOJ = async (username) => {
     }).flat();
     const nonEmptyTableElements = tableElements.filter(e => e.length).flat();
     const solvedProblems = nonEmptyTableElements.map(e => e.data);
-
-    console.log("problemas xD"); //remove?
-    console.log(solvedProblems);
     return solvedProblems;
 }
 
@@ -544,7 +575,7 @@ const problemsSolvedByUserSPOJ = async (username) => {
 const problemsSolvedByUserCSAcademy = async (username) => {
     const browser = await getPuppeteerBrowser();
     const page = await browser.newPage();
-    await page.goto(`http://www.csacademy.com/user/${username}/`, {waitUntil:'networkidle2'});
+    await page.goto(`http://www.csacademy.com/user/${username}/`);
     try{
       await page.waitForSelector('.INFO-36', {timeout:3000});
     } catch(e){
