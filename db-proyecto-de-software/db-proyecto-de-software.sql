@@ -1007,6 +1007,6 @@ SELECT * from prc_register_user('usertest', 'test@test.com', '$2b$10$hyfKWZ6zXiW
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'CodeForces', current_date);
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'CodeChef', current_date);
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'UVA', current_date);
-insert into tbl_judge(id, name, created) values (gen_random_uuid(),'OmegaUp', current_date);
+insert into tbl_judge(id, name, created) values (gen_random_uuid(),'CsAcademy', current_date);
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'SPOJ', current_date);
 
