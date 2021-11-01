@@ -540,6 +540,17 @@ async function uvaAPICall(userID, studentsJudgeUVA) {
     }
 }
 
+const problemsSolvedByUserOmegaUP = async(username) => {
+    const page = await axios.get(`https://omegaup.com/profile/${username}/`);
+    const $ = await cheerio.load(page.data);
+    const payload = $('#payload');
+
+    const solvedProblemsObjects = JSON.parse(payload[0].children[0].data).extraProfileDetails.solvedProblems;
+    const solvedProblems = solvedProblemsObjects.map((problemObject) => problemObject.alias);
+    console.log(solvedProblems);
+    return solvedProblems;
+}
+
 const problemsSolvedByUserSPOJ = async (username) => {
     const page = await axios.get(`https://www.spoj.com/users/${username}/`);
     const $ = await cheerio.load(page.data);
