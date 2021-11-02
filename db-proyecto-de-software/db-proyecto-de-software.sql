@@ -34,7 +34,7 @@ CREATE TABLE tbl_judge (
 
 CREATE TABLE tbl_problem (
 	ID UUID PRIMARY KEY NOT null,
-	problemID VARCHAR(25),
+	problemID VARCHAR(50),
 	judgeID UUID,
 	created DATE NOT NULL,
 	updated DATE,
@@ -1009,4 +1009,4 @@ insert into tbl_judge(id, name, created) values (gen_random_uuid(),'CodeChef', c
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'UVA', current_date);
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'CsAcademy', current_date);
 insert into tbl_judge(id, name, created) values (gen_random_uuid(),'SPOJ', current_date);
-
+insert into tbl_judge(id, name, created) values (gen_random_uuid(),'OmegaUp', current_date);

@@ -148,7 +148,6 @@ export const updateStudent = async (req, res) => {
 //                            the group unique id (if it's necessary to filter)
 
 export const getStudentsInfo = async (req, res) => {
-    console.log("wooow estoy pidiendo la informacion de los estudiantes xDDD");
     req.setTimeout(1000);
     var userID = req.user._id;
 
