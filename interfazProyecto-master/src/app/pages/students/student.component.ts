@@ -49,6 +49,7 @@ export class StudentComponent implements OnInit {
     "UVA",
     "CsAcademy",
     "SPOJ",
+    "OmegaUp",
     "fecha",
   ];
 
@@ -233,7 +234,7 @@ export class StudentComponent implements OnInit {
 
   addRowData(result) {
     var myDate = this.datePipe.transform(new Date(), "yyyy-MM-dd");
-    var judges = [result.CodeForces, result.CodeChef, result.UVA, result.CsAcademy, result.SPOJ];
+    var judges = [result.CodeForces, result.CodeChef, result.UVA, result.CsAcademy, result.SPOJ, result.OmegaUp];
     var stringjudge = judges.join(";");
     this.studentsService
       .addStudent(result.studentId, result.name, result.lastName, stringjudge, result.CsAcademy)
@@ -251,7 +252,8 @@ export class StudentComponent implements OnInit {
             CodeChef: result.CodeChef,
             UVA: result.UVA,
             CsAcademy: result.CsAcademy,
-            SPOJ: result.SPOJ
+            SPOJ: result.SPOJ,
+            OmegaUp: result.OmegaUp
           });
         },
         (error) => console.log("Error: ", error),
@@ -310,6 +312,7 @@ export class StudentComponent implements OnInit {
     this.allStudentsResult[foundIndex].UVA = row_obj.UVA;
     this.allStudentsResult[foundIndex].CsAcademy = row_obj.CsAcademy;
     this.allStudentsResult[foundIndex].SPOJ = row_obj.SPOJ;
+    this.allStudentsResult[foundIndex].OmegaUp = row_obj.OmegaUp;
     
 
     this.refreshTable();

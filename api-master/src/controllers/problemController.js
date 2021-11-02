@@ -228,19 +228,20 @@ export const syncProblems = async (req, res) => {
                 res.status(400).send(err);
             }
         });
+        const studentsJudgeOmegaUpResult = await client.query('SELECT * from prc_get_students_judge($1, $2)', [userID, "OmegaUp"]).catch(err => {
+            if (err) {
+                console.log("Not able to stablish connection: " + err);
+                // Return the error with BAD REQUEST (400) status
+                res.status(400).send(err);
+            }
+        });
 
-
-        console.log(studentsJudgeCodeForcesResult.rows);
-        console.log(studentsJudgeCodeChefResult.rows);
-        console.log(studentsJudgeUVAResult.rows);
-        console.log(studentsJudgeSPOJResult.rows);
-        console.log(studentsCsAcademyResult.rows);
-        console.log("----------------------------------");
         var studentsJudgeCodeForces = [];
         var studentsJudgeCodeChef = [];
         var studentsJudgeUVA = [];
         var studentsJudgeSPOJ = [];
         var studentsJudgeCsAcademy = [];
+        var studentsJudgeOmegaUp = [];
 
         if (studentsJudgeUVAResult.rows.length == studentsJudgeCodeChefResult.rows.length && studentsJudgeCodeChefResult.rows.length == studentsJudgeCodeForcesResult.rows.length){
             for (let i = 0; i < studentsJudgeUVAResult.rows.length; i++) {
@@ -249,15 +250,16 @@ export const syncProblems = async (req, res) => {
                 studentsJudgeCodeForces.push(flattenObject(studentsJudgeCodeForcesResult.rows[i]));
                 studentsJudgeSPOJ.push(flattenObject(studentsJudgeSPOJResult.rows[i]));
                 studentsJudgeCsAcademy.push(flattenObject(studentsCsAcademyResult.rows[i]));
+                studentsJudgeOmegaUp.push(flattenObject(studentsJudgeOmegaUpResult.rows[i]));
             }
         } else {
             throw err;
         }
 
         
-        const [codeForcesResult, codeChefResult, uvaResult, SPOJResult, CsAcademyResult] = await Promise.all([codeForcesAPICall(userID, studentsJudgeCodeForces),
+        const [codeForcesResult, codeChefResult, uvaResult, SPOJResult, CsAcademyResult, OmegaUpResult] = await Promise.all([codeForcesAPICall(userID, studentsJudgeCodeForces),
         codeChefAPICall(userID, studentsJudgeCodeChef),
-        uvaAPICall(userID, studentsJudgeUVA), SpojAPICall(userID, studentsJudgeSPOJ)], CsAcademyAPICall(userID, studentsJudgeCsAcademy));
+        uvaAPICall(userID, studentsJudgeUVA), SpojAPICall(userID, studentsJudgeSPOJ)], CsAcademyAPICall(userID, studentsJudgeCsAcademy), OmegaUpAPICall(userID,studentsJudgeOmegaUp));
 
         console.log("The API calls were completed");
         // Return the result from the DB with OK (200) status
@@ -269,6 +271,38 @@ export const syncProblems = async (req, res) => {
     }
 }
 
+
+
+async function OmegaUpAPICall(userID, studentsJudgeOmegaUp){
+    
+    var judgeName = "OmegaUp";
+    for(let i = 0; i < studentsJudgeOmegaUp.length; i++){
+        var userName = studentsJudgeOmegaUp[i]["studentUsername"];
+        var problemsSolvedList = await await problemsSolvedByUserOmegaUP(userName);
+        console.log("problemas de OmegaUp");
+        console.log(problemsSolvedList);
+        
+        var problems = "";
+        for(let j = 0; j < problemsSolvedList.length; j++){
+            problems += problemsSolvedList[j] + ";";
+        }
+        problems = problems.slice(0,-1);
+        
+        pool.connect(function (err, client, done){
+            if (err) {
+                console.log("Not able to stablish connection: " + err);
+            } else {
+                //-- esto es para sincronizar los problemas resueltos por un estudiante, si el problema ya existen la DB solo se asocia que el estudiante lo resolvio
+                // Execution of a query directly into the DB with parameters
+                client.query('SELECT * from prc_update_student_problems($1, $2, $3, $4)', [userID, studentsJudgeOmegaUp[i]["studentId"], judgeName, problems], function (err, result) {
+                    done();
+                    if (err)
+                        console.log(err);
+                });  
+            }
+        })
+    }
+}
 
 async function SpojAPICall(userID, studentsJudgeSPOJ){
     
@@ -541,6 +575,7 @@ async function uvaAPICall(userID, studentsJudgeUVA) {
 }
 
 const problemsSolvedByUserOmegaUP = async(username) => {
+    console.log("wow estoy en omega Up");
     const page = await axios.get(`https://omegaup.com/profile/${username}/`);
     const $ = await cheerio.load(page.data);
     const payload = $('#payload');
